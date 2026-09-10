@@ -8,6 +8,7 @@ import 'package:evently_c19/ui/add_event/screen/add_event_screen.dart';
 import 'package:evently_c19/ui/forget_pass/screen/forget_pass_screen.dart';
 import 'package:evently_c19/ui/home/screen/home_screen.dart';
 import 'package:evently_c19/ui/login/screen/login_screen.dart';
+import 'package:evently_c19/ui/onboarding/screen/onboarding_screen.dart';
 import 'package:evently_c19/ui/signup/screen/signup_screen.dart';
 import 'package:evently_c19/ui/start/screen/start_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:evently_c19/ui/onboarding/widgets/onboarding_page.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -47,10 +49,13 @@ class MyApp extends StatelessWidget {
         RoutesManager.signupRouteName:(_)=>SignupScreen(),
         RoutesManager.forgetpassRouteName:(_)=>ForgetPassScreen(),
         RoutesManager.addEventRouteName:(_)=>AddEventScreen(),
+        RoutesManager.onboardingRouteName:(_)=>OnboardingScreen(),
       },
-      initialRoute: FirebaseAuth.instance.currentUser!=null
-          ?RoutesManager.homeRouteName
-          :RoutesManager.loginRouteName,
+      initialRoute: FirebaseAuth.instance.currentUser != null
+          ? RoutesManager.homeRouteName
+          : PrefsManager.isOnboardingShown()
+          ? RoutesManager.loginRouteName
+          : RoutesManager.onboardingRouteName,
     );
   }
 }

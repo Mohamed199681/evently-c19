@@ -23,4 +23,11 @@ class PrefsManager {
       return ThemeMode.light;
     }
   }
+  static setOnboardingShown() {
+    sharedPreferences.setBool("onboarding", true);
+  }
+
+  static bool isOnboardingShown() {
+    return sharedPreferences.getBool("onboarding") ?? false;
+  }
 }
