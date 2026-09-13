@@ -4,6 +4,7 @@ import 'package:evently_c19/model/user.dart';
 
 import '../../../model/event.dart';
 
+
 class FirestoreManager {
   static CollectionReference<User> getUserCollection() {
     var collection = FirebaseFirestore.instance
@@ -38,13 +39,13 @@ class FirestoreManager {
     var collection = FirebaseFirestore.instance
         .collection("Event")
         .withConverter(
-        fromFirestore: (snapshot, options) {
-          var data = snapshot.data();
-          return Event.fromFirestore(data);
-        },
-        toFirestore: (event, options) {
-          return event.toFirestore();
-        },
+      fromFirestore: (snapshot, options) {
+        var data = snapshot.data();
+        return Event.fromFirestore(data);
+      },
+      toFirestore: (event, options) {
+        return event.toFirestore();
+      },
     );
     return collection;
   }
@@ -56,14 +57,20 @@ class FirestoreManager {
     return doc.set(event);
   }
 
+  static Future<void> updateEvent(Event event) {
+    var collection = getEventCollection();
+    var docRef = collection.doc(event.id);
+    return docRef.set(event);
+  }
+
   static Future<List<Event>> getAllEvents()async{
     var collection = getEventCollection();
     var querySnapshot = await collection.get();
     var docsList = querySnapshot.docs;
-    // List<QueryDocumentSnapshot> -> List<Event>
     var eventList = docsList.map((doc) => doc.data(),).toList();
     return eventList;
   }
+
   static Stream<List<Event>> getAllEventsRealTime()async*{
     var collection = getEventCollection();
     var querySnapshotStream = collection.snapshots();
@@ -71,11 +78,11 @@ class FirestoreManager {
     var eventsStream = docsStream.map((docs) => docs.map((document) => document.data(),).toList(),);
     yield* eventsStream;
   }
+
   static Future<List<Event>> getFilteredEvents(String type)async{
     var collection = getEventCollection().where("type",isEqualTo: type);
     var querySnapshot = await collection.get();
     var docsList = querySnapshot.docs;
-    // List<QueryDocumentSnapshot> -> List<Event>
     var eventList = docsList.map((doc) => doc.data(),).toList();
     return eventList;
   }
@@ -100,11 +107,13 @@ class FirestoreManager {
     var docRef = collection.doc(event.id);
     return docRef.set(event);
   }
+
   static Future<void> deleteFavoriteEvent(Event event){
     var collection = getFavoritesCollection();
     var docRef = collection.doc(event.id);
     return docRef.delete();
   }
+
   static Stream<List<Event>> getFavoritesList()async*{
     var collection = getFavoritesCollection();
     var querySnapshotStream = collection.snapshots();

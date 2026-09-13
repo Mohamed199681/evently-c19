@@ -17,6 +17,8 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:evently_c19/ui/onboarding/widgets/onboarding_page.dart';
+import 'package:evently_c19/ui/add_event/screen/edit_event_screen.dart';
+import 'package:evently_c19/model/event.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -50,6 +52,15 @@ class MyApp extends StatelessWidget {
         RoutesManager.forgetpassRouteName:(_)=>ForgetPassScreen(),
         RoutesManager.addEventRouteName:(_)=>AddEventScreen(),
         RoutesManager.onboardingRouteName:(_)=>OnboardingScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == RoutesManager.editEventRouteName) {
+          final event = settings.arguments as Event;
+          return MaterialPageRoute(
+            builder: (_) => EditEventScreen(event: event),
+          );
+        }
+        return null;
       },
       initialRoute: FirebaseAuth.instance.currentUser != null
           ? RoutesManager.homeRouteName

@@ -5,6 +5,7 @@ import 'package:evently_c19/core/resources/strings_manager.dart';
 import 'package:evently_c19/core/reusable_components/custom_btn.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../core/resources/assets_manager.dart';
 import '../../../core/reusable_components/custom_field.dart';
@@ -134,6 +135,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 48),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text("Or"),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: Image.asset(
+                      AssetsManager.logo,
+                      height: 24,
+                    ),
+                    label: Text("Sign in with Google"),
+                  ),
+                ),
+                SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -185,22 +210,47 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       Navigator.of(context).pop();
       if (e.code == 'user-not-found') {
-        DialogUtils.showMessageDialog(context: context,
-            content: "No user found for that email.",
-            actionTitle: "Ok",
-            actionPress: () {
-              Navigator.of(context).pop();
-            },);
+        DialogUtils.showMessageDialog(
+          context: context,
+          content: "No user found for that email.",
+          actionTitle: "Ok",
+          actionPress: () {
+            Navigator.of(context).pop();
+          },
+        );
       } else if (e.code == 'wrong-password') {
-        DialogUtils.showMessageDialog(context: context,
+        DialogUtils.showMessageDialog(
+          context: context,
           content: "Wrong password provided for that user.",
           actionTitle: "Ok",
           actionPress: () {
             Navigator.of(context).pop();
-          },);
+          },
+        );
       }
     } catch (e) {
       print("sign in exception : $e");
+    }
+  }
+  signInWithGoogle() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      DialogUtils.showLoadingDialog(context);
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      Navigator.of(context).pop();
+      Navigator.pushReplacementNamed(context, RoutesManager.homeRouteName);
+    } catch (e) {
+      print("Google sign in error: $e");
     }
   }
 }
